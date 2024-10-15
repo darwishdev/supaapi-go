@@ -6,7 +6,7 @@ import (
 )
 
 type Supaapi struct {
-	AuthClient    *auth.Client
+	AuthClient    auth.Client
 	StorageClient *storage_go.Client
 }
 
@@ -15,6 +15,6 @@ func NewSupaapi(projectRefrence string, storageUrl, apiKey string) Supaapi {
 	authClient := auth.New(projectRefrence, apiKey)
 	return Supaapi{
 		StorageClient: storageClient,
-		AuthClient:    &authClient,
+		AuthClient:    authClient,
 	}
 }
