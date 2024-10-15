@@ -5,18 +5,16 @@ import (
 	storage_go "github.com/supabase-community/storage-go"
 )
 
-type SupaapiInterface interface {
-}
 type Supaapi struct {
-	authClient    *auth.Client
-	storageClient *storage_go.Client
+	AuthClient    *auth.Client
+	StorageClient *storage_go.Client
 }
 
-func NewSupaapi(projectRefrence string, storageUrl, apiKey string) SupaapiInterface {
+func NewSupaapi(projectRefrence string, storageUrl, apiKey string) Supaapi {
 	storageClient := storage_go.NewClient(storageUrl, apiKey, nil)
 	authClient := auth.New(projectRefrence, apiKey)
-	return &Supaapi{
-		storageClient: storageClient,
-		authClient:    &authClient,
+	return Supaapi{
+		StorageClient: storageClient,
+		AuthClient:    &authClient,
 	}
 }
