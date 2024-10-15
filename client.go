@@ -1,7 +1,7 @@
 package supaapigo
 
 import (
-	"github.com/supabase-community/auth-go"
+	"github.com/darwishdev/auth-go"
 	storage_go "github.com/supabase-community/storage-go"
 )
 
