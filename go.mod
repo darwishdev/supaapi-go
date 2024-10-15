@@ -3,7 +3,7 @@ module github.com/darwishdev/supaapi-go
 go 1.23.2
 
 require (
-	github.com/darwishdev/auth-go v0.8.0
+	github.com/darwishdev/auth-go v0.9.0
 	github.com/supabase-community/storage-go v0.7.0
 )
 
