@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/darwishdev/auth-go v0.10.0
+	github.com/supabase-community/auth-go v1.3.2
 	github.com/supabase-community/storage-go v0.7.0
 )
 

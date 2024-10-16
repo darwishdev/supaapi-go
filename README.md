@@ -1,115 +1,121 @@
-# supaapigo
 
-`supaapigo` is a simple Go package that wraps Supabase's authentication and storage functionalities using the `auth-go` and `storage-go` libraries. It provides an easy-to-use interface to interact with Supabase's authentication and storage APIs.
+### 1. **Overview**
+The `supaapigo` package provides a convenient API wrapper for interacting with Supabase authentication and storage services. It simplifies user management (creating and updating users), token authorization, and integration with third-party OAuth providers such as Google.
 
-## Features
-
-- **Authentication**: Integrate Supabase's authentication features into your Go projects.
-- **Storage**: Easily interact with Supabase storage for file uploads, downloads, and management.
-
-## Installation
-
-To use `supaapigo` in your Go projects, you can install it with:
-
+### 2. **Installation**
+To install the `supaapigo` package, run the following command:
 ```bash
 go get github.com/yourusername/supaapigo
 ```
 
-Make sure to replace `yourusername` with the actual username or organization where your repository is hosted.
-
-## Usage
-
-### Initialize the Usecase
-
-To use the package across your projects, start by initializing the `SupaapiUsecase`. You'll need your Supabase project reference, storage URL, and API key to authenticate.
-
+### 3. **Configuration**
+Before using the package, you need to create a `SupaapiConfig` structure to hold your Supabase project configuration:
+```go
+type SupaapiConfig struct {
+    ProjectRef        string // Your Supabase project reference
+    ApiKey            string // API key for the Supabase project
+    ServiceRoleKey    string // Service role key for authentication
+    OAuthLoginCallback string // OAuth callback URL for login
+    OAuthRegisterCallback string // OAuth callback URL for registration
+    Env               Env    // Environment (DEV or PROD)
+    Port              int    // Port number for development
+}
+```
+### 4. **Usage**
+#### 4.1 **Creating a New Supaapi Instance**
+To create a new instance of `Supaapi`, use the `NewSupaapi` function:
 ```go
 package main
 
-import (
-	"github.com/yourusername/supaapigo"
-)
+import "github.com/yourusername/supaapigo"
 
 func main() {
-	// Initialize the SupaapiUsecase
-	projectReference := "your-supabase-project-reference"
-	storageURL := "https://your-supabase-storage-url"
-	apiKey := "your-supabase-api-key"
-
-	supaapi := supaapigo.NewSupaapiUsecase(projectReference, storageURL, apiKey)
-
-	// Use supaapi for authentication and storage operations
-	// Example: Uploading files, managing authentication, etc.
+    config := supaapigo.SupaapiConfig{
+        ProjectRef:         "your_project_ref",
+        ApiKey:             "your_api_key",
+        ServiceRoleKey:     "your_service_role_key",
+        OAuthLoginCallback: "https://yourdomain.com/auth/callback",
+        OAuthRegisterCallback: "https://yourdomain.com/auth/register/callback",
+        Env:                supaapigo.DEV, // or supaapigo.PROD
+        Port:               3000, // Development port
+    }
+    
+    supaAPI := supaapigo.NewSupaapi(config)
 }
 ```
 
-### Example: Authentication
-
-The `SupaapiUsecase` uses the `auth-go` package to handle authentication-related operations. You can access the `authClient` from the usecase to sign up users, sign in, and manage sessions.
-
-Example for signing up a user:
-
+#### 4.2 **Creating or Updating a User**
+To create a new user or update an existing one, use the `UserCreateUpdate` method:
 ```go
-import "github.com/supabase-community/auth-go"
+createUpdateReq := types.AdminUpdateUserRequest{
+    UserID:       uuid.New(), // or existing user ID
+    Aud:          "authenticated",
+    Role:         "user",
+    Email:        "user@example.com",
+    Phone:        "1234567890",
+    Password:     "password123",
+    EmailConfirm: true,
+    PhoneConfirm: true,
+    UserMetadata: map[string]interface{}{"key": "value"},
+    AppMetadata:  map[string]interface{}{"key": "value"},
+}
 
-func SignUpUser(supaapi supaapigo.SupaapiUsecaseInterface, email, password string) error {
-    user, err := supaapi.AuthClient.SignUp(auth.SignUpUserInput{
-        Email:    email,
-        Password: password,
-    })
-    if err != nil {
-        return err
-    }
-    fmt.Printf("User created: %v\n", user)
-    return nil
+user, err := supaAPI.UserCreateUpdate(createUpdateReq)
+if err != nil {
+    // Handle error
 }
 ```
 
-### Example: Storage
-
-The `SupaapiUsecase` also integrates the `storage-go` package, allowing you to easily manage files in Supabase Storage.
-
-Example for uploading a file:
-
+#### 4.3 **Authorizing a Token**
+To authorize a token and retrieve user details:
 ```go
-import (
-    "fmt"
-    "os"
-)
-
-func UploadFile(supaapi supaapigo.SupaapiUsecaseInterface, bucketName, filePath string) error {
-    file, err := os.Open(filePath)
-    if err != nil {
-        return err
-    }
-    defer file.Close()
-
-    res, err := supaapi.StorageClient.UploadFile(bucketName, filePath, file)
-    if err != nil {
-        return err
-    }
-    fmt.Printf("File uploaded: %v\n", res)
-    return nil
+token := "your_jwt_token"
+user, err := supaAPI.AuthorizeToken(token)
+if err != nil {
+    // Handle error
 }
 ```
 
-### Interfaces for Flexibility
+#### 4.4 **Google Login**
+To initiate Google login:
+```go
+authorizeResp, err := supaAPI.GoogleLogin()
+if err != nil {
+    // Handle error
+}
+```
 
-By using the `SupaapiUsecaseInterface`, you can easily mock this interface and write unit tests for your project without depending directly on Supabase’s services.
+### 5. **Error Handling**
+The package returns errors for various operations. Common errors include:
+- Invalid API key
+- User already exists
+- Token expiration
 
-## Project Structure
+Check the error messages for details.
 
-- **authClient**: A reference to the Supabase authentication client, which allows you to perform user-related operations such as sign-ups, logins, etc.
-- **storageClient**: A reference to the Supabase storage client, used to upload, download, and manage files in the Supabase storage.
+### 6. **Advanced Features**
+The package allows integration with OAuth providers. You can extend the functionality by adding other providers as needed.
 
-## Contributing
+### 7. **Examples**
+Include specific examples for user creation, token authorization, and OAuth login as shown in the Usage section.
 
-If you find a bug or have a feature request, feel free to open an issue or submit a pull request.
+### 8. **Testing**
+For testing, consider using mock services to simulate Supabase responses. Ensure that all public methods have corresponding unit tests.
 
-## License
+### 9. **Contributing**
+To contribute to this package, please follow these guidelines:
+- Fork the repository
+- Create a new branch for your feature or bug fix
+- Submit a pull request with a description of your changes
 
-This project is licensed under the MIT License.
+### 10. **License**
+Specify the license under which this package is distributed (e.g., MIT License).
 
 ---
 
-This README provides a clear explanation of the package's purpose, how to set it up, and how to use the key functionalities across multiple projects. Adjust the package URLs based on where your project is hosted.
+### Conclusion
+The `supaapigo` package streamlines interactions with Supabase's authentication and storage services. It simplifies user management and OAuth integrations, making it easier to build applications that leverage these powerful features.
+
+---
+
+Feel free to modify the above documentation to suit your style or add any additional details you think are necessary. If you need further assistance with specific sections or examples, let me know!
