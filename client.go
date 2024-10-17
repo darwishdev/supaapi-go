@@ -46,16 +46,10 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 }
 func (s *Supaapi) UserCreateUpdate(createUpdateReq types.AdminUpdateUserRequest) (*types.User, error) {
 	if createUpdateReq.UserID == uuid.Nil {
-		user, err := s.AuthClient.AdminCreateUser(types.AdminCreateUserRequest{
-			Aud:          createUpdateReq.Aud,
-			Role:         createUpdateReq.Role,
-			Email:        createUpdateReq.Email,
-			Phone:        createUpdateReq.Phone,
-			Password:     &createUpdateReq.Password,
-			EmailConfirm: createUpdateReq.EmailConfirm,
-			PhoneConfirm: createUpdateReq.PhoneConfirm,
-			UserMetadata: createUpdateReq.UserMetadata,
-			AppMetadata:  createUpdateReq.AppMetadata,
+		user, err := s.AuthClient.Signup(types.SignupRequest{
+			Email:    createUpdateReq.Email,
+			Phone:    createUpdateReq.Phone,
+			Password: createUpdateReq.Password,
 		})
 		if err != nil {
 			return nil, err
