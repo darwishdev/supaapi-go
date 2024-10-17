@@ -18,10 +18,7 @@ const (
 )
 
 type Supaapi struct {
-	AuthClient            auth.Client
-	OAuthLoginCallback    string
-	OAuthRegisterCallback string
-
+	AuthClient    auth.Client
 	StorageClient storage_go.Client
 }
 
@@ -38,10 +35,8 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 	}
 	storageClient := storage_go.NewClient(storageURL, config.ServiceRoleKey, nil)
 	return Supaapi{
-		StorageClient:         *storageClient,
-		OAuthLoginCallback:    config.OAuthLoginCallback,
-		OAuthRegisterCallback: config.OAuthRegisterCallback,
-		AuthClient:            authClient,
+		StorageClient: *storageClient,
+		AuthClient:    authClient,
 	}
 }
 func (s *Supaapi) UserCreateUpdate(createUpdateReq types.AdminUpdateUserRequest) (*types.User, error) {
@@ -52,6 +47,7 @@ func (s *Supaapi) UserCreateUpdate(createUpdateReq types.AdminUpdateUserRequest)
 			Password: createUpdateReq.Password,
 		})
 		if err != nil {
+
 			return nil, err
 		}
 		return &user.User, nil
@@ -70,10 +66,10 @@ func (s *Supaapi) AuthorizeToken(token string) (*types.User, error) {
 	return &resp.User, nil
 }
 
-func (s *Supaapi) GoogleLogin() (*types.AuthorizeResponse, error) {
+func (s *Supaapi) ProviderLogin(provider types.Provider, redirectUrl string) (*types.AuthorizeResponse, error) {
 	resp, err := s.AuthClient.Authorize(types.AuthorizeRequest{
-		RedirectTo: s.OAuthLoginCallback,
-		Provider:   "google",
+		RedirectTo: redirectUrl,
+		Provider:   provider,
 	})
 	if err != nil {
 		return nil, err
