@@ -21,7 +21,7 @@ type Supaapi struct {
 	StorageUrl     string
 	ServiceRoleKey string
 	AuthClient     auth.Client
-	StorageClient  storage_go.Client
+	StorageClient  *storage_go.Client
 }
 
 func NewSupaapi(config SupaapiConfig) Supaapi {
@@ -37,7 +37,7 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 	}
 	storageClient := storage_go.NewClient(storageURL, config.ServiceRoleKey, nil)
 	return Supaapi{
-		StorageClient:  *storageClient,
+		StorageClient:  storageClient,
 		StorageUrl:     storageURL,
 		ServiceRoleKey: config.ServiceRoleKey,
 		AuthClient:     authClient,
@@ -46,7 +46,7 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 
 func (s *Supaapi) RestartStorageClient() {
 	storageClient := storage_go.NewClient(s.StorageUrl, s.ServiceRoleKey, nil)
-	s.StorageClient = *storageClient
+	s.StorageClient = storageClient
 }
 
 func (s *Supaapi) UserCreateUpdate(createUpdateReq types.AdminUpdateUserRequest) (*types.User, error) {
