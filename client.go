@@ -13,13 +13,15 @@ import (
 const (
 	DEV            Env    = "DEV"
 	PROD           Env    = "PROD"
-	AUTH_SUFFIX    string = "auth/v1/"
-	STORAGE_SUFFIX string = "storage/v1/"
+	AUTH_SUFFIX    string = "auth/v1"
+	STORAGE_SUFFIX string = "storage/v1"
 )
 
 type Supaapi struct {
-	AuthClient    auth.Client
-	StorageClient storage_go.Client
+	StorageUrl     string
+	ServiceRoleKey string
+	AuthClient     auth.Client
+	StorageClient  storage_go.Client
 }
 
 func NewSupaapi(config SupaapiConfig) Supaapi {
@@ -35,10 +37,18 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 	}
 	storageClient := storage_go.NewClient(storageURL, config.ServiceRoleKey, nil)
 	return Supaapi{
-		StorageClient: *storageClient,
-		AuthClient:    authClient,
+		StorageClient:  *storageClient,
+		StorageUrl:     storageURL,
+		ServiceRoleKey: config.ServiceRoleKey,
+		AuthClient:     authClient,
 	}
 }
+
+func (s *Supaapi) RestartStorageClient() {
+	storageClient := storage_go.NewClient(s.StorageUrl, s.ServiceRoleKey, nil)
+	s.StorageClient = *storageClient
+}
+
 func (s *Supaapi) UserCreateUpdate(createUpdateReq types.AdminUpdateUserRequest) (*types.User, error) {
 	if createUpdateReq.UserID == uuid.Nil {
 		user, err := s.AuthClient.Signup(types.SignupRequest{
