@@ -3,10 +3,10 @@ package supaapigo
 import (
 	"fmt"
 
+	storage_go "github.com/darwishdev/storage-go"
 	"github.com/google/uuid"
 	"github.com/supabase-community/auth-go"
 	"github.com/supabase-community/auth-go/types"
-	storage_go "github.com/supabase-community/storage-go"
 )
 
 // Define constants for valid values
@@ -19,7 +19,7 @@ const (
 
 type Supaapi struct {
 	StorageUrl     string
-	ServiceRoleKey string
+	serviceRoleKey string
 	AuthClient     auth.Client
 	StorageClient  *storage_go.Client
 }
@@ -39,13 +39,13 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 	return Supaapi{
 		StorageClient:  storageClient,
 		StorageUrl:     storageURL,
-		ServiceRoleKey: config.ServiceRoleKey,
+		serviceRoleKey: config.ServiceRoleKey,
 		AuthClient:     authClient,
 	}
 }
 
 func (s *Supaapi) RestartStorageClient() {
-	storageClient := storage_go.NewClient(s.StorageUrl, s.ServiceRoleKey, nil)
+	storageClient := storage_go.NewClient(s.StorageUrl, s.serviceRoleKey, nil)
 	s.StorageClient = storageClient
 }
 
