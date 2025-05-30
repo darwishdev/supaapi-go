@@ -20,6 +20,7 @@ const (
 type Supaapi struct {
 	StorageUrl     string
 	serviceRoleKey string
+	anonApiKey    string
 	AuthClient     auth.Client
 	StorageClient  *storage_go.Client
 }
@@ -38,6 +39,7 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 	storageClient := storage_go.NewClient(storageURL, config.ServiceRoleKey, nil)
 	return Supaapi{
 		StorageClient:  storageClient,
+		anonApiKey : config.ApiKey
 		StorageUrl:     storageURL,
 		serviceRoleKey: config.ServiceRoleKey,
 		AuthClient:     authClient,
