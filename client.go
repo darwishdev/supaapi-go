@@ -20,7 +20,7 @@ const (
 type Supaapi struct {
 	StorageUrl     string
 	serviceRoleKey string
-	anonApiKey    string
+	anonApiKey     string
 	AuthClient     auth.Client
 	StorageClient  *storage_go.Client
 }
@@ -28,6 +28,11 @@ type Supaapi struct {
 func NewSupaapi(config SupaapiConfig) Supaapi {
 	var customURL string
 	var baseURL string
+	key := config.ServiceRoleKey
+	headers := map[string]string{
+		"Authorization": "Bearer " + key,
+		"apikey":        key,
+	}
 	storageURL := fmt.Sprintf("https://%s.supabase.co/%s", config.ProjectRef, STORAGE_SUFFIX)
 	authClient := auth.New(config.ProjectRef, config.ApiKey).WithToken(config.ServiceRoleKey)
 	if config.Env == DEV {
@@ -36,19 +41,14 @@ func NewSupaapi(config SupaapiConfig) Supaapi {
 		customURL = fmt.Sprintf("%s/%s", baseURL, AUTH_SUFFIX)
 		authClient = authClient.WithCustomAuthURL(customURL)
 	}
-	storageClient := storage_go.NewClient(storageURL, config.ServiceRoleKey, nil)
+	storageClient := storage_go.NewClient(storageURL, config.ServiceRoleKey, headers)
 	return Supaapi{
 		StorageClient:  storageClient,
-		anonApiKey : config.ApiKey
+		anonApiKey:     config.ApiKey,
 		StorageUrl:     storageURL,
 		serviceRoleKey: config.ServiceRoleKey,
 		AuthClient:     authClient,
 	}
-}
-
-func (s *Supaapi) RestartStorageClient() {
-	storageClient := storage_go.NewClient(s.StorageUrl, s.serviceRoleKey, nil)
-	s.StorageClient = storageClient
 }
 
 func (s *Supaapi) UserCreateUpdate(createUpdateReq types.AdminUpdateUserRequest) (*types.User, error) {
